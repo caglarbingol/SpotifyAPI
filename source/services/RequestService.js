@@ -1,9 +1,15 @@
 import axios from "axios";
 axios.defaults.port = 80;
-const baseUrl = axios.create()
-export default (url, postMethod, data, headers, responseFunc, errorFunc) => {
+const spotifyAuth = axios.create({
+    baseURL: "https://accounts.spotify.com/api/token"
+})
+const spotifyApi = axios.create({
+    baseURL: `https://api.spotify.com/v1`
+})
+export default {
+    spotifyAuth: (url, postMethod, data, headers, responseFunc, errorFunc) => {
         if (postMethod == 'GET') {
-            baseUrl.get(url, data, {headers: headers})
+            spotifyAuth.get(url, data, { headers: headers })
                 .then((response) => {
                     responseFunc(response)
                 })
@@ -12,7 +18,26 @@ export default (url, postMethod, data, headers, responseFunc, errorFunc) => {
                 })
         }
         if (postMethod == 'POST') {
-            baseUrl.post(url, data, {headers: headers})
+            spotifyAuth.post(url, data, { headers: headers })
+                .then((response) => {
+                    responseFunc(response)
+                })
+                .catch((error) => {
+                    errorFunc(error)
+                })
+        }},
+    spotifyApi: (refreshToken, url, postMethod, data, headers, responseFunc, errorFunc) => {
+        if (postMethod == 'GET') {
+            spotifyApi.get(url, { headers: headers })
+                .then((response) => {
+                    responseFunc(response)
+                })
+                .catch((error) => {
+                    errorFunc(error)
+                })
+        }
+        if (postMethod == 'POST') {
+            spotifyApi.post(url, data, { headers: headers })
                 .then((response) => {
                     responseFunc(response)
                 })
@@ -21,3 +46,4 @@ export default (url, postMethod, data, headers, responseFunc, errorFunc) => {
                 })
         }
     }
+}
